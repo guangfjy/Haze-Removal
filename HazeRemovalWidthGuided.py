@@ -7,7 +7,7 @@ from guidedfilter import guidedfilter
 
 
 class HazeRemoval:
-    def __init__(self, filename, omega = 0.85, r = 40):
+    def __init__(self, filename, omega=0.85, r=40):
         self.filename = filename
         self.omega = omega
         self.r = r
@@ -15,12 +15,13 @@ class HazeRemoval:
         self.t = 0.1
 
     def _ind2sub(self, array_shape, ind):
-        rows = (ind.astype('int') / array_shape[1])
-        cols = (ind.astype('int') % array_shape[1]) # or numpy.mod(ind.astype('int'), array_shape[1])
+        rows = (ind.astype('int') // array_shape[1])
+        # or numpy.mod(ind.astype('int'), array_shape[1])
+        cols = (ind.astype('int') % array_shape[1])
         return (rows, cols)
 
     def _rgb2gray(self, rgb):
-        return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
+        return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
 
     def haze_removal(self):
         oriImage = np.array(Image.open(self.filename))
@@ -33,7 +34,8 @@ class HazeRemoval:
         A = img[i, j, :].mean()
         transmission = 1 - self.omega * darkImage / A
 
-        transmissionFilter = guidedfilter(grayImage, transmission, self.r, self.eps )
+        transmissionFilter = guidedfilter(
+            grayImage, transmission, self.r, self.eps)
         transmissionFilter[transmissionFilter < self.t] = self.t
 
         resultImage = np.zeros_like(img)
@@ -45,6 +47,7 @@ class HazeRemoval:
         result = Image.fromarray((resultImage * 255).astype(np.uint8))
 
         return result
+
 
 if __name__ == '__main__':
     imageName = "canon3.bmp"
